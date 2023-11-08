@@ -10,7 +10,7 @@ status_string[0] = "Chưa Xử Lý"
 status_string[1] = "Sai Mật Khẩu"
 status_string[2] = "Đang Rải"
 status_string[3] = "Bị Chặn"
-
+status_string[4] = "Login Fail"
 
 
 def get_via(path):
@@ -45,6 +45,7 @@ def on_button_click():
         message_label.config(text="Dữ liệu đã được lấy thành công!", fg="green")
         threading.Thread(target=worker_thread, args=(via_list, country, key_word, mess_text)).start()
         threading.Thread(target=get_status, args=(via_list,)).start()
+        button.configure(state="disabled", text="Mở tool khác, tắt cái này")
     else:
         message_label.config(text="Vui lòng nhập đủ thông tin", fg="red")
 
