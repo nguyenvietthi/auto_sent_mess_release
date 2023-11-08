@@ -11,6 +11,7 @@ status_string[1] = "Sai Mật Khẩu"
 status_string[2] = "Đang Rải"
 status_string[3] = "Bị Chặn"
 status_string[4] = "Login Fail"
+status_string[5] = "Couldn't send"
 
 
 def get_via(path):
