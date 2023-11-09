@@ -13,7 +13,7 @@ status_string[3] = "Bị Chặn"
 status_string[4] = "Login Fail"
 status_string[5] = "Couldn't send"
 status_string[6] = "956 or 282"
-
+status_string[7] = "Bỏ qua"
 
 def get_via(path):
     via_list = []
@@ -36,6 +36,10 @@ def on_button_click():
     mycursor.execute(sql_updat)
     mydb.commit()
 
+    f = open("next_via", "w+")
+    f.write("0")
+    f.close()
+
     print(via_list)
     add_data_to_table(via_list)
     country    = text_boxes[0].get()
@@ -47,6 +51,7 @@ def on_button_click():
         message_label.config(text="Dữ liệu đã được lấy thành công!", fg="green")
         threading.Thread(target=worker_thread, args=(via_list, country, key_word, mess_text)).start()
         threading.Thread(target=get_status, args=(via_list,)).start()
+        threading.Thread(target=update_next_via_status, args=()).start()
         button.configure(state="disabled", text="Mở tool khác, tắt cái này")
     else:
         message_label.config(text="Vui lòng nhập đủ thông tin", fg="red")
@@ -103,6 +108,24 @@ def browse_file():
     file_path_entry.delete(0, tk.END)
     file_path_entry.insert(0, file_path)
 
+def next_via():
+    f = open("next_via", "w+")
+    f.write("1")
+    f.close()
+    butt2on.configure(state="disabled", text="Chờ tắt via")
+
+def update_next_via_status():
+    while(True):
+        f = open("next_via", "r")
+        next_via_str = f.read()
+        next_via = int(next_via_str)
+        print("aloooo")
+        f.close()
+        if(next_via == 0):
+            butt2on.configure(state="active", text="Next via")
+
+        sleep(5)
+    
 root = tk.Tk()
 root.title("Auto send messages for Facebook")
 
@@ -110,6 +133,8 @@ root.title("Auto send messages for Facebook")
 button = tk.Button(root, text="RUN AUTO", command=on_button_click)
 button.grid(row=0, column=1, pady=10)
 
+butt2on = tk.Button(root, text="Next Via", command=next_via)
+butt2on.grid(row=0, column=2, pady=10)
 # Tạo 5 ô text box và nhãn tương ứng
 text_boxes = []
 
