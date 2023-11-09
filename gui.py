@@ -12,6 +12,7 @@ status_string[2] = "Đang Rải"
 status_string[3] = "Bị Chặn"
 status_string[4] = "Login Fail"
 status_string[5] = "Couldn't send"
+status_string[6] = "956 or 282"
 
 
 def get_via(path):
@@ -69,6 +70,7 @@ def get_status(via_list):
         mycursor = mydb.cursor()
         mycursor.execute("SELECT * FROM via")
         myresult = mycursor.fetchall()
+        print(myresult, len(myresult))
         tree.delete(*tree.get_children())
 
         for idx, via in enumerate(via_list):
