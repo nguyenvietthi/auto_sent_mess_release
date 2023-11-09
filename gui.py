@@ -4,6 +4,12 @@ import auto_sent_mess_fb
 import threading
 import mysql.connector
 from time import sleep
+import json 
+
+import string
+import random
+
+name = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5)) 
 
 status_string = dict()
 status_string[0] = "Chưa Xử Lý"
@@ -15,6 +21,8 @@ status_string[5] = "Couldn't send"
 status_string[6] = "956 or 282"
 status_string[7] = "Bỏ qua"
 
+# via_status = {str(i): 0 for i in range(50)}
+
 def get_via(path):
     via_list = []
     f = open(path, "r")
@@ -25,18 +33,22 @@ def get_via(path):
 def on_button_click():
     # Lấy dữ liệu từ các ô text box
     via_list = get_via(file_path_entry.get())
-    mydb = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="admin",
-    database="scan_page"
-    )
-    sql_updat = f"UPDATE via SET status = 0 WHERE via_id < {len(via_list)}"
-    mycursor = mydb.cursor()
-    mycursor.execute(sql_updat)
-    mydb.commit()
+    # mydb = mysql.connector.connect(
+    # host="localhost",
+    # user="root",
+    # password="admin",
+    # database="scan_page"
+    # )
+    # sql_updat = f"UPDATE via SET status = 0 WHERE via_id < {len(via_list)}"
+    # mycursor = mydb.cursor()
+    # mycursor.execute(sql_updat)
+    # mydb.commit()
+    via_status = {str(i): 0 for i in range(50)}
 
-    f = open("next_via", "w+")
+    with open(f'via_status_{name}.json', 'w+') as convert_file: 
+        convert_file.write(json.dumps(via_status))
+
+    f = open(f"next_via_{name}", "w+")
     f.write("0")
     f.close()
 
@@ -49,7 +61,7 @@ def on_button_click():
     if(len(via_list) > 0 and country != "" and key_word != "" and mess_text != ""):
         # Hiển thị thông báo
         message_label.config(text="Dữ liệu đã được lấy thành công!", fg="green")
-        threading.Thread(target=worker_thread, args=(via_list, country, key_word, mess_text)).start()
+        threading.Thread(target=worker_thread, args=(via_list, country, key_word, mess_text, name, )).start()
         threading.Thread(target=get_status, args=(via_list,)).start()
         threading.Thread(target=update_next_via_status, args=()).start()
         button.configure(state="disabled", text="Mở tool khác, tắt cái này")
@@ -66,28 +78,29 @@ def update_message(message, color):
 
 def get_status(via_list):
     while(True):
-        mydb = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="admin",
-        database="scan_page"
-        )
-        mycursor = mydb.cursor()
-        mycursor.execute("SELECT * FROM via")
-        myresult = mycursor.fetchall()
-        print(myresult, len(myresult))
+        # mydb = mysql.connector.connect(
+        # host="localhost",
+        # user="root",
+        # password="admin",
+        # database="scan_page"
+        # )
+        # mycursor = mydb.cursor()
+        # mycursor.execute("SELECT * FROM via")
+         # myresult = mycursor.fetchall()
+        with open(f'via_status_{name}.json') as json_file:
+            data = json.load(json_file)
         tree.delete(*tree.get_children())
 
         for idx, via in enumerate(via_list):
             viatmp = list(via)
-            viatmp.append(status_string[myresult[idx][1]])
+            viatmp.append(status_string[data[str(idx)]])
             tree.insert('', 'end', values=viatmp)
         sleep(5)
 
-def worker_thread(acc_list, country, key_word, mess_text):
+def worker_thread(acc_list, country, key_word, mess_text, name):
     # Thực hiện công việc nặng nề ở đây
     print(country, key_word, mess_text)
-    auto_sent_mess_fb.run_multi_acc(acc_list, country, key_word, mess_text)
+    auto_sent_mess_fb.run_multi_acc(acc_list, country, key_word, mess_text, name)
 
     # Sau khi hoàn thành công việc, cập nhật thông báo trên GUI
     root.after(0, lambda: update_message("Công việc nặng nề đã hoàn thành!", "blue"))
