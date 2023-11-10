@@ -11,6 +11,8 @@ import random
 
 name = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5)) 
 
+should_exit = False
+
 status_string = dict()
 status_string[0] = "Chưa Xử Lý"
 status_string[1] = "Sai Mật Khẩu"
@@ -52,6 +54,10 @@ def on_button_click():
     f.write("0")
     f.close()
 
+    f = open(f"close_{name}", "w+")
+    f.write("0")
+    f.close()
+
     print(via_list)
     add_data_to_table(via_list)
     country    = text_boxes[0].get()
@@ -69,6 +75,14 @@ def on_button_click():
         message_label.config(text="Vui lòng nhập đủ thông tin", fg="red")
 
 def on_closing():
+    f = open(f"close_{name}", "w+")
+    f.write("1")
+    f.close()
+    
+    f = open(f"next_via_{name}", "w+")
+    f.write("1")
+    f.close()
+    
     global should_exit
     should_exit = True
     root.destroy()
@@ -77,7 +91,7 @@ def update_message(message, color):
     message_label.config(text=message, fg=color)
 
 def get_status(via_list):
-    while(True):
+    while(not should_exit):
         # mydb = mysql.connector.connect(
         # host="localhost",
         # user="root",
@@ -128,7 +142,7 @@ def next_via():
     butt2on.configure(state="disabled", text="Chờ tắt via")
 
 def update_next_via_status():
-    while(True):
+    while(not should_exit):
         f = open(f"next_via_{name}", "r")
         next_via_str = f.read()
         next_via = int(next_via_str)
