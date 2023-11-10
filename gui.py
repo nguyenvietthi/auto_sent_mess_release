@@ -122,14 +122,14 @@ def browse_file():
     file_path_entry.insert(0, file_path)
 
 def next_via():
-    f = open("next_via", "w+")
+    f = open(f"next_via_{name}", "w+")
     f.write("1")
     f.close()
     butt2on.configure(state="disabled", text="Chờ tắt via")
 
 def update_next_via_status():
     while(True):
-        f = open("next_via", "r")
+        f = open(f"next_via_{name}", "r")
         next_via_str = f.read()
         next_via = int(next_via_str)
         print("aloooo")
