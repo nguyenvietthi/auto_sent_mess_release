@@ -60,14 +60,15 @@ def on_button_click():
 
     print(via_list)
     add_data_to_table(via_list)
-    country    = text_boxes[0].get()
-    key_word   = text_boxes[1].get()
+    token      = text_boxes[0].get()
+    country    = text_boxes[1].get()
+    key_word   = text_boxes[2].get()
     mess_text  = text_editor.get("1.0", tk.END)
 
     if(len(via_list) > 0 and country != "" and key_word != "" and mess_text != ""):
         # Hiển thị thông báo
         message_label.config(text="Dữ liệu đã được lấy thành công!", fg="green")
-        threading.Thread(target=worker_thread, args=(via_list, country, key_word, mess_text, name, )).start()
+        threading.Thread(target=worker_thread, args=(via_list, country, key_word, mess_text, name, token, )).start()
         threading.Thread(target=get_status, args=(via_list,)).start()
         threading.Thread(target=update_next_via_status, args=()).start()
         button.configure(state="disabled", text="Mở tool khác, tắt cái này")
@@ -111,10 +112,10 @@ def get_status(via_list):
             tree.insert('', 'end', values=viatmp)
         sleep(5)
 
-def worker_thread(acc_list, country, key_word, mess_text, name):
+def worker_thread(acc_list, country, key_word, mess_text, name, token):
     # Thực hiện công việc nặng nề ở đây
     print(country, key_word, mess_text)
-    auto_sent_mess_fb.run_multi_acc(acc_list, country, key_word, mess_text, name)
+    auto_sent_mess_fb.run_multi_acc(acc_list, country, key_word, mess_text, name, token)
 
     # Sau khi hoàn thành công việc, cập nhật thông báo trên GUI
     root.after(0, lambda: update_message("Công việc nặng nề đã hoàn thành!", "blue"))
@@ -174,34 +175,41 @@ file_path_entry.grid(row=1, column=1, pady=5)
 browse_button = tk.Button(root, text="Browse", command=browse_file)
 browse_button.grid(row=1, column=2, pady=5)
 
-label = tk.Label(root, text=f"Country :")
+label = tk.Label(root, text=f"Token :")
 label.grid(row=4, column=0, padx=5, pady=5)
 
 text_box = tk.Entry(root, width=50)
 text_box.grid(row=4, column=1, pady=5)
 text_boxes.append(text_box)
 
-label = tk.Label(root, text=f"Key Word :")
+label = tk.Label(root, text=f"Country :")
 label.grid(row=5, column=0, padx=5, pady=5)
 
 text_box = tk.Entry(root, width=50)
 text_box.grid(row=5, column=1, pady=5)
 text_boxes.append(text_box)
 
+label = tk.Label(root, text=f"Key Word :")
+label.grid(row=6, column=0, padx=5, pady=5)
+
+text_box = tk.Entry(root, width=50)
+text_box.grid(row=6, column=1, pady=5)
+text_boxes.append(text_box)
+
 # Tạo ô soạn thảo văn bản và nhãn tương ứng
 label_editor = tk.Label(root, text="Message:")
-label_editor.grid(row=6, column=0, padx=5, pady=5)
+label_editor.grid(row=7, column=0, padx=5, pady=5)
 
 text_editor = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=70, height=5)
-text_editor.grid(row=6, column=1, pady=10)
+text_editor.grid(row=7, column=1, pady=10)
 
 # Khu vực thông báo
 message_label = tk.Label(root, text="", fg="red")
-message_label.grid(row=7, columnspan=2, pady=10)
+message_label.grid(row=8, columnspan=2, pady=10)
 
 # Tạo bảng
 tree = ttk.Treeview(root, columns=('User Name', 'Password', "2FA", 'Trạng Thái'), show='headings', height=30)
-tree.grid(row=8, columnspan=2, pady=10)
+tree.grid(row=9, columnspan=2, pady=10)
 
 # Đặt tên cho các cột và đặt chiều rộng
 columns = ['User Name', 'Password', '2FA', 'Trạng Thái']
